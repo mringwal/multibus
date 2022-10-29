@@ -141,3 +141,51 @@ message:
             status: enum
             address: u16
             data: u8[]
+
+    gpio:
+      id: 0x02
+
+      operations:
+        enums:
+          status:
+            INVALID_PIN: 0x80
+            EVENT_NOT_ALLOWED: 0x81
+
+
+        # Configure gpio. Channel is gpio number on the respective bridge-board
+        config_request:
+          id: 0x00
+          fields:
+            mode:
+              input: 0x0
+              output: 0x1
+            enable_gpio_pullup: bool
+            enable_gpio_pulldown: bool
+            enable_event: bool
+        config response:
+          id: 0x80
+          fields:
+            status: enum
+
+        set_request:
+          id: 0x01
+          fields:
+            gpio_enabled: bool
+        set_response:
+          id: 0x81
+          fields:
+            status: enum
+
+        get_request:
+          id: 0x02
+        get_response:
+          id: 0x82
+          fields:
+            status: enum
+            enabled: bool
+
+        event:
+          id: 0x83
+          fields:
+            enabled: bool
+
