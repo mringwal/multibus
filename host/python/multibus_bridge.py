@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+
+# Copyright 2022 Boris Zweimueller
+#
+# Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+# following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+# disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+# following disclaimer in the documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+from multibus_connection import MultibusConnection
+
+import os
+PATH_TO_PYTHON_BINDING_GENERATOR = "../../protocol/generator-python.py"
+PYTHON_BINDING_GENERATOR_TARGET = "../../host/python/generated"
+PATH_TO_PYTHON_BINDINGS = PYTHON_BINDING_GENERATOR_TARGET + '/multibus_protocol.py'
+
+if not os.path.exists(PATH_TO_PYTHON_BINDINGS):
+    print("Python protocol bindings do not exist: Generating multibus_protocol.py")
+    os.system(PATH_TO_PYTHON_BINDING_GENERATOR + ' ' + PYTHON_BINDING_GENERATOR_TARGET)
+    print("Generated python protocol bindings successfully.")
+    # TODO handle errors during generation of protocol bindings.
+
+from generated import multibus_protocol
+
+
+class MultibusBridge:
+    MB_BRIDGE_CHANNEL = 0x0
+
+    def __init__(self, multibus_connection: MultibusConnection):
+        self.multibus_connection = multibus_connection
+
+    def get_protocol_version(self):
+        message = multibus_protocol.mb_bridge_protocol_version_request_setup(self.MB_BRIDGE_CHANNEL)
+
+        self.multibus_connection.send_multibus_message(message)
+
+        payload = self.multibus_connection.receive_multibus_message()[1]
+        return multibus_protocol.mb_bridge_protocol_version_response(payload)
+
+    def get_firmware_version(self):
+        message = multibus_protocol.mb_bridge_firmware_version_request_setup(self.MB_BRIDGE_CHANNEL)
+
+        self.multibus_connection.send_multibus_message(message)
+
+        payload = self.multibus_connection.receive_multibus_message()[1]
+        return multibus_protocol.mb_bridge_firmware_version_response(payload)
+
+    def get_supported_components(self):
+        message = multibus_protocol.mb_bridge_supported_components_request_setup(self.MB_BRIDGE_CHANNEL)
+
+        self.multibus_connection.send_multibus_message(message)
+
+        payload = self.multibus_connection.receive_multibus_message()[1]
+        return multibus_protocol.mb_bridge_supported_components_response(payload)
+
+    def get_hw_info(self):
+        message = multibus_protocol.mb_bridge_hardware_info_request_setup(self.MB_BRIDGE_CHANNEL)
+
+        self.multibus_connection.send_multibus_message(message)
+
+        payload = self.multibus_connection.receive_multibus_message()[1]
+        return multibus_protocol.mb_bridge_hardware_info_response(payload).decode("utf-8")
+
+    def delay_request(self, timeout_ms):
+        message = multibus_protocol.mb_bridge_delay_request_setup(self.MB_BRIDGE_CHANNEL, timeout_ms)
+
+        self.multibus_connection.send_multibus_message(message)
+
+        return self.multibus_connection.receive_multibus_message()[0]  # return header only

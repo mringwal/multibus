@@ -1,0 +1,17 @@
+.idea
+cmake-build-*
+host/python/__pycache__/
+protocol/multibus_protocol.h
+build
+
+protocol/multibus_protocol.c
+
+protocol/multibus_protocol_transport.h
+
+host/python/generated/multibus_protocol.py
+
+protocol/multibus_protocol.py
+
+protocol/multibus_transport_protocol.h
+
+*.pyc

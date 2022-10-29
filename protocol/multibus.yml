@@ -1,0 +1,143 @@
+# MultiBus Protocol Definition
+
+# This YML file defines the protocol messages exchanged between the host and the bridge
+
+# Each message consists of a common header and the component-specific payload
+# The header contains the component (e.g. I2C Master, GPIO,...), the operation, and the channel.
+
+# Enums can be defined both on the on message level and on the component level.
+# Individual message fields can have their own custom enumerations
+
+# All values are serialized in network/big endian order
+
+# Supported data types:
+#    bool: false or true
+#      u8: unsigned  8-bit value
+#     u16: unsigned 16-bit value
+#     u32: unsigned 32-bit value
+#    u8[]: binary array until end of message
+#  string: utf-8 string until end of message, no trailing '\0'
+#    enum: either already defined enum or per-field enumeration, stored as u8
+
+version: 0
+
+message:
+
+  fields:
+    component:  enum
+    operation:  u8
+    channel:    u8
+    length:    u16
+
+  enums:
+    status :
+      OK                : 0x00
+      UNKNOWN_ERROR     : 0x01
+      INVALID_ARGUMENTS : 0x02
+      BUSY              : 0x03
+
+  components:
+
+    # Bridge component, provides hard- and software information
+
+    bridge:
+      id: 0x00
+
+      operations:
+
+        # Get implemented protocol version
+        protocol_version_request:
+          id: 0x00
+          fields:
+        protocol_version_response:
+          id: 0x80
+          fields:
+            version: u16
+
+        # Get information about bridge hardware
+        hardware_info_request:
+          id: 0x01
+          fields:
+        hardware_info_response:
+          id: 0x81
+          fields:
+            hardware_info: string
+
+        # Get information about bridge firmware
+        firmware_version_request:
+          id: 0x02
+          fields:
+        firmware_version_response:
+          id: 0x82
+          fields:
+            firmware_version: u16
+
+        # Get list of supported components
+        supported_components_request:
+          id: 0x03
+          fields:
+        supported_components_response:
+          id: 0x83
+          fields:
+            supported_components: u8[]
+
+        # Delay response by given amount of time, useful for non-blocking host code
+        delay_request:
+          id: 0x04
+          fields:
+            timeout_ms: u32
+        delay_response:
+          id: 0x84
+          fields:
+
+    # I2C Master Component, allows occess I2C Slave devices
+
+    i2c_master:
+      id: 0x01
+
+      enums:
+        status:
+          TIMEOUT :             0x80
+          SLAVE_NOT_CONNECTED : 0x81
+          NOT_READY :           0x83
+
+      operations:
+
+        # Configure I2C Master
+        config_request:
+          id: 0x00
+          fields:
+            clock_speed: 
+              100_KHZ : 0x0
+              400_KHZ : 0x1
+            enable_scl_pullup: bool
+            enable_sda_pullup: bool
+        config_response:
+          id: 0x80
+          fields:
+            status: enum
+
+        # Send data to addressed I2C Slave device
+        write_request:
+          id: 0x01
+          fields:
+            address: u16
+            data: u8[]
+        write_response:
+          id: 0x81
+          fields:
+            status: enum
+            address: u16
+
+        # Read data from addressed I2C Slave device
+        read_request:
+          id: 0x2
+          fields:
+            address: u16
+            num_bytes: u8
+        read_response:
+          id: 0x82
+          fields:
+            status: enum
+            address: u16
+            data: u8[]
