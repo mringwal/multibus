@@ -145,12 +145,12 @@ message:
     gpio:
       id: 0x02
 
-      operations:
-        enums:
-          status:
-            INVALID_PIN: 0x80
-            EVENT_NOT_ALLOWED: 0x81
+      enums:
+        status:
+          INVALID_PIN: 0x80
+          EVENT_NOT_ALLOWED: 0x81
 
+      operations:
 
         # Configure gpio. Channel is gpio number on the respective bridge-board
         config_request:
