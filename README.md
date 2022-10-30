@@ -61,6 +61,7 @@ The `multibus_transport_protocol.h` wrapper provides convenience functions to se
 An example for reading a light sensor over I2C without an actual run loop is provided, as well as an integration into the 
 popular [libev](http://software.schmorp.de/pkg/libev.html) event loop.
 
+
 ### Python
 The Python binding provides a simple API to access and test connected devices.
 
@@ -70,6 +71,19 @@ interface has to be implemented
 The protocol generator generates `multibus_protocol.py` in `host/python/generated`.
 
 An example for reading a light sensor over I2C is provided as `example/multibus_luxor_sync_draft.py`.
+
+
+### Status
+
+| Platform/Bus       | I2C Master   | GPIO | SPI | ... |
+|--------------------|--------------|------|-----|-----|
+| ESP32              | ok           |      |     |     |
+| Raspberry Pi Pico  | ok           |      |     |     |
+
+
+## Contributions
+If you like to support MulitBus on your favoriate dev kit, feel free to submit a pull request.
+
 
 ## Related projects
 - [Firmata](https://github.com/firmata/protocol/). Very similar goal. Firmwata messages are based on MIDI protocol.
