@@ -200,7 +200,7 @@ message:
           fields:
             data: u8[]
 
-        transfer_respons:
+        transfer_response:
           id: 0x83
           fields:
             status: enum
