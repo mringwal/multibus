@@ -151,6 +151,7 @@ message:
 
           # see https://en.wikipedia.org/wiki/Serial_Peripheral_Interface
           fields:
+            data_bits: u8
             bit_order:
               lsb_first: 0
               msb_first: 1
