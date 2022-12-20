@@ -185,6 +185,8 @@ def c_write_enum(fout, enum_name, values):
     c_type = c_type_for_enum_name(enum_name)
     fout.write("typedef enum {\n")
     for (name, value) in values.items():
+        if type(name) is int:
+            name = str(name)
         if type(value) is int:
             value = "0x%x" % value
         fout.write('    MB_%s_%s = %s,\n' % (enum_name.upper(), name.upper(), value))
