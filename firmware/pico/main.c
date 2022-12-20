@@ -28,6 +28,7 @@
 #include "bsp/board.h"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
+#include "hardware/spi.h"
 #include "tusb.h"
 #include "pico/unique_id.h"
 
@@ -61,7 +62,7 @@ static uint8_t cdc_response[MAX_MESSSAGE_LEN];
 static uint32_t cdc_response_len;
 static uint32_t cdc_response_offset;
 
-static const uint8_t supported_components[] = {MB_COMPONENT_I2C_MASTER};
+static const uint8_t supported_components[] = {MB_COMPONENT_I2C_MASTER, MB_COMPONENT_SPI_MASTER};
 
 //------------- utils -------------//
 static uint32_t mb_min(uint32_t a, uint32_t b) {
@@ -177,7 +178,7 @@ static bool mb_component_i2c_master_handle_request(const uint8_t * payload_data,
             if (status == MB_STATUS_OK){
                 // unregister
                 if (mb_i2c_master_configured){
-                    i2c_deinit(&i2c0_inst);
+                    i2c_deinit(i2c_default);
                 }
                 // config
                 i2c_init(i2c_default, mb_i2c_master_speed);
@@ -220,6 +221,116 @@ static bool mb_component_i2c_master_handle_request(const uint8_t * payload_data,
                 status = MB_STATUS_I2C_MASTER_SLAVE_NOT_CONNECTED;
             }
             cdc_response_len = mb_i2c_master_write_response_setup(cdc_response, sizeof(cdc_response), 0, status, i2c_address);
+            break;
+        default:
+            printf("I2C Master operation 0x%02x not implemented yet, ignore\n", mb_header_get_operation(cdc_request));
+            return false;
+    }
+    cdc_protocol_state = CDC_SEND_RESPONSE;
+    return true;
+}
+
+
+//--------------------------------------------------------------------+
+// MultiBus Component SPI_Master
+//--------------------------------------------------------------------+
+
+#define SPI_MASTER_MAX_READ_LEN 500
+#if (SPI_MASTER_MAX_READ_LEN + 10) > MAX_MESSSAGE_LEN
+#error "SPI_MASTER_MAX_READ_LEN too larger for MAX_MESSSAGE_LEN"
+#endif
+
+static bool mb_spi_master_configured;
+static uint8_t spi_master_read_buffer[SPI_MASTER_MAX_READ_LEN];
+
+static bool mb_component_spi_master_handle_request(const uint8_t * payload_data, uint16_t payload_len) {
+    mb_status_t status = MB_STATUS_OK;
+    uint16_t spi_operation_len;
+    // config params
+    uint32_t mb_spi_master_speed;
+    uint8_t data_bits;
+    spi_order_t bit_order;
+    spi_cpol_t cpol;
+    spi_cpha_t cpha;
+
+    int res;
+    switch (mb_header_get_operation(cdc_request)) {
+        case MB_OPERATION_SPI_MASTER_CONFIG_REQUEST:
+            // check parameters
+            switch (mb_spi_master_config_request_get_spi_master_config_request_bit_order(payload_data)){
+                case MB_SPI_MASTER_CONFIG_REQUEST_BIT_ORDER_LSB_FIRST:
+                    bit_order = SPI_LSB_FIRST;
+                    break;
+                case MB_I2C_MASTER_CONFIG_REQUEST_CLOCK_SPEED_400_KHZ:
+                    bit_order = SPI_MSB_FIRST;
+                    break;
+                default:
+                    status = MB_STATUS_INVALID_ARGUMENTS;
+                    break;
+            }
+            switch(mb_spi_master_config_request_get_spi_master_config_request_cpol(payload_data)){
+                case MB_SPI_MASTER_CONFIG_REQUEST_CPOL_0:
+                    cpol = SPI_CPOL_0;
+                    break;
+                case MB_SPI_MASTER_CONFIG_REQUEST_CPOL_1:
+                    cpol = SPI_CPOL_1;
+                    break;
+                default:
+                    status = MB_STATUS_INVALID_ARGUMENTS;
+                    break;
+            }
+            switch(mb_spi_master_config_request_get_spi_master_config_request_cpha(payload_data)){
+                case MB_SPI_MASTER_CONFIG_REQUEST_CPHA_0:
+                    cpol = SPI_CPHA_0;
+                    break;
+                case MB_SPI_MASTER_CONFIG_REQUEST_CPHA_1:
+                    cpol = SPI_CPHA_1;
+                    break;
+                default:
+                    status = MB_STATUS_INVALID_ARGUMENTS;
+                    break;
+            }
+            mb_spi_master_speed = mb_spi_master_config_request_get_baud_rate(payload_data);
+            data_bits = mb_spi_master_config_request_get_data_bits(payload_data);
+            if ((data_bits > 16) || (data_bits < 4)){
+                status = MB_STATUS_INVALID_ARGUMENTS;
+            }
+            if (status == MB_STATUS_OK){
+                // unregister
+                if (mb_spi_master_configured){
+                    spi_deinit(spi_default);
+                }
+                // config
+                spi_init(spi_default, mb_spi_master_speed);
+                spi_set_format(spi_default, data_bits, cpol, cpha, bit_order);
+                printf("SPI Master Config: speed %u, data bits: %u, bit order %s first, CPOL %u, CPHA %u\n",
+                       mb_spi_master_speed, data_bits, bit_order == SPI_MSB_FIRST ? "MSB" : "LSB", cpol, cpha);
+            }
+            cdc_response_len = mb_spi_master_config_response_setup(cdc_response, sizeof(cdc_response), 0, status);
+            break;
+        case MB_OPERATION_SPI_MASTER_READ_REQUEST:
+            spi_operation_len = mb_spi_master_read_request_get_num_bytes(payload_data);
+            // check size
+            if (spi_operation_len > SPI_MASTER_MAX_READ_LEN){
+                status = MB_STATUS_INVALID_ARGUMENTS;
+            }
+            (void) spi_read_blocking(spi_default, 0x00, spi_master_read_buffer, spi_operation_len);
+            cdc_response_len = mb_spi_master_read_response_setup(cdc_response, sizeof(cdc_response), 0, status, spi_operation_len, spi_master_read_buffer);
+            break;
+        case MB_OPERATION_I2C_MASTER_WRITE_REQUEST:
+            spi_operation_len = mb_spi_master_write_request_get_data_len(payload_len);
+            (void) spi_write_blocking(spi_default, mb_spi_master_write_request_get_data(payload_data), spi_operation_len);
+            cdc_response_len = mb_spi_master_write_response_setup(cdc_response, sizeof(cdc_response), 0, status);
+            break;
+        case MB_OPERATION_SPI_MASTER_TRANSFER_REQUEST:
+            spi_operation_len = mb_spi_master_read_request_get_num_bytes(payload_data);
+            // check size
+            if (spi_operation_len > SPI_MASTER_MAX_READ_LEN){
+                status = MB_STATUS_INVALID_ARGUMENTS;
+            }
+            spi_write_read_blocking(spi_default, mb_spi_master_transfer_request_get_data(payload_data),
+                                    spi_master_read_buffer,spi_operation_len);
+            cdc_response_len = mb_spi_master_write_response_setup(cdc_response, sizeof(cdc_response), 0, status);
             break;
         default:
             printf("I2C Master operation 0x%02x not implemented yet, ignore\n", mb_header_get_operation(cdc_request));
@@ -276,6 +387,9 @@ static void cdc_task(void) {
                     break;
                 case MB_COMPONENT_I2C_MASTER:
                     valid_request = mb_component_i2c_master_handle_request(payload_data, payload_len);
+                    break;
+                case MB_COMPONENT_SPI_MASTER:
+                    valid_request = mb_component_spi_master_handle_request(payload_data, payload_len);
                     break;
                 default:
                     printf("Request for unknown component 0x%02x, ignore\n", mb_header_get_component(cdc_request));

@@ -35,7 +35,7 @@ target_sources(multibus-pico PUBLIC
 
 target_include_directories(${PROJECT} PRIVATE ${MULTIBUS_SRC} ${MULTIBUS_PROTOCOL_C} ${CMAKE_CURRENT_BINARY_DIR} .)
 
-target_link_libraries(${PROJECT} PUBLIC pico_stdlib tinyusb_device tinyusb_board pico_unique_id hardware_i2c)
+target_link_libraries(${PROJECT} PUBLIC pico_stdlib tinyusb_device tinyusb_board pico_unique_id hardware_i2c hardware_spi)
 
 pico_add_extra_outputs(${PROJECT})
 
