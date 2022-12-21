@@ -243,6 +243,26 @@ static bool mb_component_i2c_master_handle_request(const uint8_t * payload_data,
 static bool mb_spi_master_configured;
 static uint8_t spi_master_read_buffer[SPI_MASTER_MAX_READ_LEN];
 
+#ifdef PICO_DEFAULT_SPI_CSN_PIN
+static inline void mb_spi_master_cs_select() {
+    asm volatile("nop \n nop \n nop");
+    gpio_put(PICO_DEFAULT_SPI_CSN_PIN, 0);  // Active low
+    asm volatile("nop \n nop \n nop");
+}
+
+static inline void mb_spi_master_cs_deselect() {
+    asm volatile("nop \n nop \n nop");
+    gpio_put(PICO_DEFAULT_SPI_CSN_PIN, 1);
+    asm volatile("nop \n nop \n nop");
+}
+#endif
+
+static void mb_spi_master_set_gpio_function(enum gpio_function function) {
+    gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, function);
+    gpio_set_function(PICO_DEFAULT_SPI_TX_PIN, function);
+    gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, function);
+}
+
 static bool mb_component_spi_master_handle_request(const uint8_t * payload_data, uint16_t payload_len) {
     mb_status_t status = MB_STATUS_OK;
     uint16_t spi_operation_len;
@@ -303,6 +323,11 @@ static bool mb_component_spi_master_handle_request(const uint8_t * payload_data,
                 // config
                 spi_init(spi_default, mb_spi_master_speed);
                 spi_set_format(spi_default, data_bits, cpol, cpha, bit_order);
+                mb_spi_master_set_gpio_function(GPIO_FUNC_SPI);
+                // manually handle chip select
+                gpio_init(PICO_DEFAULT_SPI_CSN_PIN);
+                gpio_set_dir(PICO_DEFAULT_SPI_CSN_PIN, GPIO_OUT);
+                gpio_put(PICO_DEFAULT_SPI_CSN_PIN, 1);
                 printf("SPI Master Config: speed %u, data bits: %u, bit order %s first, CPOL %u, CPHA %u\n",
                        mb_spi_master_speed, data_bits, bit_order == SPI_MSB_FIRST ? "MSB" : "LSB", cpol, cpha);
             }
@@ -314,12 +339,16 @@ static bool mb_component_spi_master_handle_request(const uint8_t * payload_data,
             if (spi_operation_len > SPI_MASTER_MAX_READ_LEN){
                 status = MB_STATUS_INVALID_ARGUMENTS;
             }
+            mb_spi_master_cs_select();
             (void) spi_read_blocking(spi_default, 0x00, spi_master_read_buffer, spi_operation_len);
+            mb_spi_master_cs_deselect();
             cdc_response_len = mb_spi_master_read_response_setup(cdc_response, sizeof(cdc_response), 0, status, spi_operation_len, spi_master_read_buffer);
             break;
         case MB_OPERATION_I2C_MASTER_WRITE_REQUEST:
             spi_operation_len = mb_spi_master_write_request_get_data_len(payload_len);
+            mb_spi_master_cs_select();
             (void) spi_write_blocking(spi_default, mb_spi_master_write_request_get_data(payload_data), spi_operation_len);
+            mb_spi_master_cs_deselect();
             cdc_response_len = mb_spi_master_write_response_setup(cdc_response, sizeof(cdc_response), 0, status);
             break;
         case MB_OPERATION_SPI_MASTER_TRANSFER_REQUEST:
@@ -328,8 +357,10 @@ static bool mb_component_spi_master_handle_request(const uint8_t * payload_data,
             if (spi_operation_len > SPI_MASTER_MAX_READ_LEN){
                 status = MB_STATUS_INVALID_ARGUMENTS;
             }
+            mb_spi_master_cs_select();
             spi_write_read_blocking(spi_default, mb_spi_master_transfer_request_get_data(payload_data),
                                     spi_master_read_buffer,spi_operation_len);
+            mb_spi_master_cs_deselect();
             cdc_response_len = mb_spi_master_write_response_setup(cdc_response, sizeof(cdc_response), 0, status);
             break;
         default:
