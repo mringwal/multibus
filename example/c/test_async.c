@@ -40,9 +40,10 @@ static const uint8_t lux_sensor_config = 0x23;
 static bool         run_loop_done;
 
 // transport instance
-static uint8_t request_buffer[10];
-static uint8_t response_buffer[10];
+static uint8_t request_buffer[20];
+static uint8_t response_buffer[20];
 static mb_transport_t mb_transport;
+static mb_serial_posix_context_t mb_serial_posix_context;
 
 // app state
 static enum  {
@@ -103,7 +104,6 @@ int main(int argc, const char **argv) {
     multibus_bridge_path = argv[1];
 
     // open serial transport
-    mb_serial_posix_context_t mb_serial_posix_context;
     bool ok = mb_serial_posix_open(&mb_serial_posix_context, multibus_bridge_path, multibus_bridge_baudrate);
     if (!ok) return 10;
 

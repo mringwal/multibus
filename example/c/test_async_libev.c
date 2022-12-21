@@ -42,10 +42,10 @@ static const uint8_t lux_sensor_config = 0x23;
 static bool         run_loop_done;
 
 // transport instance
-static uint8_t request_buffer[10];
-static uint8_t response_buffer[10];
+static uint8_t request_buffer[20];
+static uint8_t response_buffer[20];
 static mb_transport_t mb_transport;
-mb_serial_posix_context_t mb_serial_posix_context;
+static mb_serial_posix_context_t mb_serial_posix_context;
 
 // libev
 ev_io transport_watcher;
