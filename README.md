@@ -65,7 +65,7 @@ popular [libev](http://software.schmorp.de/pkg/libev.html) event loop.
 ### Python
 The Python binding provides a simple API to access and test connected devices.
 
-To suport other transports than the one provided via Python Serial module, only the abstract `multibus_connection.py` 
+To support other transports than the one provided via Python Serial module, only the abstract `multibus_connection.py` 
 interface has to be implemented
 
 The protocol generator generates `multibus_protocol.py` in `host/python/generated`.
@@ -75,10 +75,10 @@ An example for reading a light sensor over I2C is provided as `example/multibus_
 
 ### Status
 
-| Platform/Bus       | I2C Master   | GPIO | SPI | ... |
-|--------------------|--------------|------|-----|-----|
-| ESP32              | ok           |      |     |     |
-| Raspberry Pi Pico  | ok           |      |     |     |
+| Platform/Bus                           | I2C Master   | GPIO | SPI | ... |
+|----------------------------------------|--------------|------|-----|-----|
+| [ESP32](firmware/esp32)                | ok           |      |     |     |
+| [Raspberry Pi Pico (W)](firmware/pico) | ok           |      |     |     |
 
 
 ## Contributions
