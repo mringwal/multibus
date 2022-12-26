@@ -23,6 +23,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "multibus_protocol.h"
 #include "multibus_serial_posix.h"
@@ -54,10 +55,14 @@ void test_sync_callback_handler(void * context, const mb_message_t * message){
 
 const mb_message_t * test_sync_wait_for_response(mb_transport_t * transport){
     test_sync_message = NULL;
-    // run loop
     while (test_sync_message == NULL){
-        mb_serial_posix_process_read(&mb_serial_posix_context);
-        mb_serial_posix_process_write(&mb_serial_posix_context);
+        bool can_sleep = true;
+        can_sleep &= mb_serial_posix_process_read(&mb_serial_posix_context) == 0;
+        can_sleep &= mb_serial_posix_process_write(&mb_serial_posix_context) == 0;
+        if (can_sleep){
+            // sleep 10 ms if no processing is active
+            usleep(10 * 1000);
+        }
     }
     return test_sync_message;
 }
