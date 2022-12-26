@@ -301,10 +301,10 @@ static bool mb_component_spi_master_handle_request(const uint8_t * payload_data,
             }
             switch(mb_spi_master_config_request_get_cpha(payload_data)){
                 case MB_SPI_MASTER_CONFIG_REQUEST_CPHA_0:
-                    cpol = SPI_CPHA_0;
+                    cpha = SPI_CPHA_0;
                     break;
                 case MB_SPI_MASTER_CONFIG_REQUEST_CPHA_1:
-                    cpol = SPI_CPHA_1;
+                    cpha = SPI_CPHA_1;
                     break;
                 default:
                     status = MB_STATUS_INVALID_ARGUMENTS;
