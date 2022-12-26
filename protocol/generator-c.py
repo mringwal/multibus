@@ -279,9 +279,10 @@ def c_generate_header(gen_path):
                 name_message_prefix = "mb_message_" + component_name + "_" + operation_name + "_get_"
                 for (field, mb_type) in operation_fields.items():
                     if type(mb_type) is dict:
-                        field = component_name + "_" + operation_name + '_' + field
                         mb_type = 'enum'
-                    if mb_type == 'enum':
+                        full_type = component_name + "_" + operation_name + '_' + field
+                        c_type = c_type_for_enum_name(full_type)
+                    elif mb_type == 'enum':
                         c_type = c_type_for_enum_name(field)
                     else:
                         c_type = c_types[mb_type]

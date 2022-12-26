@@ -164,7 +164,7 @@ static bool mb_component_i2c_master_handle_request(const uint8_t * payload_data,
     switch (mb_header_get_operation(cdc_request)) {
         case MB_OPERATION_I2C_MASTER_CONFIG_REQUEST:
             // check parameters
-            switch (mb_i2c_master_config_request_get_i2c_master_config_request_clock_speed(payload_data)){
+            switch (mb_i2c_master_config_request_get_clock_speed(payload_data)){
                 case MB_I2C_MASTER_CONFIG_REQUEST_CLOCK_SPEED_100_KHZ:
                     mb_i2c_master_speed = 100000u;
                     break;
@@ -277,7 +277,7 @@ static bool mb_component_spi_master_handle_request(const uint8_t * payload_data,
     switch (mb_header_get_operation(cdc_request)) {
         case MB_OPERATION_SPI_MASTER_CONFIG_REQUEST:
             // check parameters
-            switch (mb_spi_master_config_request_get_spi_master_config_request_bit_order(payload_data)){
+            switch (mb_spi_master_config_request_get_bit_order(payload_data)){
                 case MB_SPI_MASTER_CONFIG_REQUEST_BIT_ORDER_LSB_FIRST:
                     bit_order = SPI_LSB_FIRST;
                     break;
@@ -288,7 +288,7 @@ static bool mb_component_spi_master_handle_request(const uint8_t * payload_data,
                     status = MB_STATUS_INVALID_ARGUMENTS;
                     break;
             }
-            switch(mb_spi_master_config_request_get_spi_master_config_request_cpol(payload_data)){
+            switch(mb_spi_master_config_request_get_cpol(payload_data)){
                 case MB_SPI_MASTER_CONFIG_REQUEST_CPOL_0:
                     cpol = SPI_CPOL_0;
                     break;
@@ -299,7 +299,7 @@ static bool mb_component_spi_master_handle_request(const uint8_t * payload_data,
                     status = MB_STATUS_INVALID_ARGUMENTS;
                     break;
             }
-            switch(mb_spi_master_config_request_get_spi_master_config_request_cpha(payload_data)){
+            switch(mb_spi_master_config_request_get_cpha(payload_data)){
                 case MB_SPI_MASTER_CONFIG_REQUEST_CPHA_0:
                     cpol = SPI_CPHA_0;
                     break;
