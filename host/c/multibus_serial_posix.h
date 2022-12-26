@@ -96,14 +96,16 @@ bool mb_serial_posix_write_active(mb_serial_posix_context_t * mb_serial_posix_co
 /**
  * @brief Process incoming data
  * @param mb_serial_posix_context
+ * @return number_bytes_read
  */
-void  mb_serial_posix_process_read(mb_serial_posix_context_t * mb_serial_posix_context);
+uint16_t mb_serial_posix_process_read(mb_serial_posix_context_t * mb_serial_posix_context);
 
 /**
  * @brief Continue sending
  * @param mb_serial_posix_context
+ * @return number_bytes_written
  */
-void mb_serial_posix_process_write(mb_serial_posix_context_t * mb_serial_posix_context);
+uint16_t mb_serial_posix_process_write(mb_serial_posix_context_t * mb_serial_posix_context);
 
 /**
  * Provide driver implementation

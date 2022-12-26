@@ -182,43 +182,51 @@ void mb_serial_posix_driver_send_block(void * driver_context, const uint8_t *buf
     }
 }
 
-void mb_serial_posix_process_read(mb_serial_posix_context_t * mb_serial_posix_context) {
+uint16_t mb_serial_posix_process_read(mb_serial_posix_context_t * mb_serial_posix_context) {
     if (mb_serial_posix_context->rx_len  == 0) {
-        return;
+        return 0;
     }
 
     // read up to bytes_to_read data in
     ssize_t bytes_read = read(mb_serial_posix_context->fd, mb_serial_posix_context->rx_buffer, mb_serial_posix_context->rx_len);
     if (bytes_read <= 0) {
-        return;
+        return 0;
     }
 
     mb_serial_posix_context->rx_len    -= bytes_read;
     mb_serial_posix_context->rx_buffer += bytes_read;
-    if (mb_serial_posix_context->rx_len > 0) return;
+    if (mb_serial_posix_context->rx_len > 0) return (uint16_t) bytes_read;
 
     if (mb_serial_posix_context->block_received_callback != NULL){
         mb_serial_posix_context->block_received_callback(mb_serial_posix_context->block_received_context);
     }
+
+    return bytes_read;
 }
 
-void mb_serial_posix_process_write(mb_serial_posix_context_t * mb_serial_posix_context) {
+uint16_t mb_serial_posix_process_write(mb_serial_posix_context_t * mb_serial_posix_context) {
 
-    if (mb_serial_posix_context->tx_len == 0) return;
+    if (mb_serial_posix_context->tx_len == 0) {
+        return 0;
+    }
 
     // write up to write_bytes_len to fd
     ssize_t bytes_written = write(mb_serial_posix_context->fd, mb_serial_posix_context->tx_buffer, mb_serial_posix_context->tx_len);
     if (bytes_written <= 0) {
-        return;
+        return 0;
     }
 
     mb_serial_posix_context->tx_len    -= bytes_written;
     mb_serial_posix_context->tx_buffer += bytes_written;
-    if (mb_serial_posix_context->tx_len > 0) return;
+    if (mb_serial_posix_context->tx_len > 0) {
+        return (uint16_t) bytes_written;
+    }
 
     if (mb_serial_posix_context->block_sent_callback != NULL){
         mb_serial_posix_context->block_sent_callback(mb_serial_posix_context->block_sent_context);
     }
+
+    return bytes_written;
 }
 
 static const mb_driver_t mb_serial_posix_driver_interface = {
