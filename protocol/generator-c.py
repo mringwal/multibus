@@ -157,23 +157,19 @@ def c_getter_len(fn_name, offset):
     else:
         return c_getter_len_template.format(fn_name=fn_name, offset=offset)
 
-def c_payload_getter(field_name, mb_type, fn_name, offset, argument_name):
+def c_payload_getter(fn_name, field_name, c_type, mb_type, offset, argument_name):
     if mb_type == 'enum':
-        fn_type = c_type_for_enum_name(field_name)
-        accessor = '(%s) ' % fn_type + c_buffer_accessor['u8'].format(buffer=argument_name, offset=offset)
+        accessor = '(%s) ' % c_type + c_buffer_accessor['u8'].format(buffer=argument_name, offset=offset)
     else:
-        fn_type = c_types[mb_type]
         accessor = c_buffer_accessor[mb_type].format(buffer=argument_name, offset=offset)
-    return c_payload_getter_template.format(fn_type=fn_type, fn_name=fn_name, accessor=accessor, argument_name=argument_name)
+    return c_payload_getter_template.format(fn_type=c_type, fn_name=fn_name, accessor=accessor, argument_name=argument_name)
 
-def c_message_getter(field_name, mb_type, fn_name, offset, argument_name):
+def c_message_getter(fn_name, field_name, c_type, mb_type, offset, argument_name):
     if mb_type == 'enum':
-        fn_type = c_type_for_enum_name(field_name)
-        accessor = '(%s) ' % fn_type + c_buffer_accessor['u8'].format(buffer=argument_name+'->payload_data', offset=offset)
+        accessor = '(%s) ' % c_type + c_buffer_accessor['u8'].format(buffer=argument_name+'->payload_data', offset=offset)
     else:
-        fn_type = c_types[mb_type]
         accessor = c_buffer_accessor[mb_type].format(buffer=argument_name+'->payload_data', offset=offset)
-    return c_message_getter_template.format(fn_type=fn_type, fn_name=fn_name, accessor=accessor, argument_name=argument_name)
+    return c_message_getter_template.format(fn_type=c_type, fn_name=fn_name, accessor=accessor, argument_name=argument_name)
 
 def c_arguments(fields):
     arguments = []
@@ -247,7 +243,11 @@ def c_generate_header(gen_path):
         fout.write("// MultiBus Protocol Getter for Header\n")
         offset = 0
         for (field, mb_type) in header.items():
-            fout.write(c_payload_getter(field, mb_type, 'mb_header_get_'+field, offset, 'header'))
+            if mb_type == 'enum':
+                c_type = c_type_for_enum_name(field)
+            else:
+                c_type = c_types[mb_type]
+            fout.write(c_payload_getter('mb_header_get_' + field, field, c_type, mb_type, offset, 'header'))
             offset += c_size[mb_type]
         fout.write("\n")
 
@@ -281,12 +281,16 @@ def c_generate_header(gen_path):
                     if type(mb_type) is dict:
                         field = component_name + "_" + operation_name + '_' + field
                         mb_type = 'enum'
+                    if mb_type == 'enum':
+                        c_type = c_type_for_enum_name(field)
+                    else:
+                        c_type = c_types[mb_type]
                     if mb_type in ['u8[]','string']:
                         fout.write(c_getter_len(name_payload_prefix + field, offset))
                     # getter using payload
-                    fout.write(c_payload_getter(field, mb_type, name_payload_prefix + field, offset, 'payload'))
+                    fout.write(c_payload_getter(name_payload_prefix + field, field, c_type, mb_type, offset, 'payload'))
                     # getter using message
-                    fout.write(c_message_getter(field, mb_type, name_message_prefix + field, offset, 'message'))
+                    fout.write(c_message_getter(name_message_prefix + field, field, c_type, mb_type, offset, 'message'))
                     offset += c_size[mb_type]
                 fout.write("\n")
 
