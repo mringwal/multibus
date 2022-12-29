@@ -7,11 +7,11 @@ changes with other esp variants.
 
 ## esp-idf environment
 
-The bridge currently uses the **esp-idf-v5.0-beta1** release. Older releases (<5) should work with only minimal
+The bridge currently uses the **esp-idf-v5.0** release. Older releases (<5) should work with only minimal
 adaptions (C++ 20 is a requirement, some renamings in the FreeRTOS port).
 
 Information on how to setup the esp-idf framework is available here: 
-https://docs.espressif.com/projects/esp-idf/en/v5.0-beta1/esp32/get-started/index.html
+https://docs.espressif.com/projects/esp-idf/en/v5.0/esp32/get-started/index.html
 
 ## Build
 
