@@ -205,3 +205,13 @@ message:
           fields:
             status: enum
             data: u8[]
+
+        get_num_channels_request:
+          id: 0x04
+          fields:
+
+        get_num_channels_response:
+          id: 0x04
+          fields:
+            num_channels: u16
+
