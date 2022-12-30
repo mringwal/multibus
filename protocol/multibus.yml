@@ -157,13 +157,13 @@ message:
               msb_first: 1
             cpol:
               # Clock Polarity. CPOL=0: starts with raising edge
-              0: 0
-              1: 1
+              "0": 0
+              "1": 1
             cpha:
               # Clock Phase: CPHA=0: output data changes on trailing edge of preceding clock cycle
               #                      input data changes on leading edge of clock cycle
-              0: 0
-              1: 1
+              "0": 0
+              "1": 1
             baud_rate: u32
 
         config_response:
