@@ -23,14 +23,15 @@
 #ifndef MULTIBUS_MAIN_COMPONENT_FACTORY_INCLUDED
 #define MULTIBUS_MAIN_COMPONENT_FACTORY_INCLUDED
 
-#include <CBridge.h>
-#include <CI2CMaster.h>
+#include <memory>
+#include "IComponent.h"
 #include "IMultiBusMessageReaderWriter.h"
 
 class CComponentFactory {
 public:
     static std::shared_ptr<IComponent> createBridgeComponent(std::shared_ptr<IMultiBusMessageReaderWriter> aMultiBusReaderWriter);
     static std::shared_ptr<IComponent> createI2CMasterComponent(std::shared_ptr<IMultiBusMessageReaderWriter> aMultiBusReaderWriter);
+    static std::shared_ptr<IComponent> createSPIMasterComponent(std::shared_ptr<IMultiBusMessageReaderWriter> aMultiBusReaderWriter);
 };
 
 #endif //MULTIBUS_MAIN_COMPONENT_FACTORY_INCLUDED

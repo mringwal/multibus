@@ -26,19 +26,51 @@
 #include <string>
 #include <esp_chip_info.h>
 #include <map>
+#include <hal/spi_types.h>
 
 class CHardwareInfo {
- public:
-  std::string getChipModel();
+public:
+    /**
+     * Get the model of the current ESP chip.
+     *
+     * @return chip model as a std::string.
+     */
+    static std::string getChipModel();
 
-  static inline const std::map<esp_chip_model_t , std::string> smChipModelMap = {
-      {CHIP_ESP32, "ESP32"},
-      {CHIP_ESP32S2, "ESP32S2"},
-      {CHIP_ESP32S3, "ESP32S3"},
-      {CHIP_ESP32C3, "ESP32C3"},
-      {CHIP_ESP32H2, "ESP32H2"},
-      {CHIP_ESP32C2, "ESP32C2"},
-  };
+    /**
+     * Get the number of general purpose SPI ports for the current chip.
+     *
+     * @return  number of general purpose SPI ports.
+     */
+    static uint32_t getNumSpiPorts();
+
+    static spi_host_device_t getSpiHostDeviceForMultibusChannelNumber(uint32_t aMultibusChannelNumber);
+
+    static inline const std::map<const esp_chip_model_t, const std::string> smChipModelMap = {
+            {CHIP_ESP32,   "ESP32"},
+            {CHIP_ESP32S2, "ESP32S2"},
+            {CHIP_ESP32S3, "ESP32S3"},
+            {CHIP_ESP32C2, "ESP32C2"},
+            {CHIP_ESP32C3, "ESP32C3"},
+            {CHIP_ESP32H2, "ESP32H2"},
+    };
+
+    static inline const std::map<const esp_chip_model_t, const uint32_t> smChipNumGeneralPurposeSpiPortsMap = {
+            {CHIP_ESP32,   2},
+            {CHIP_ESP32S2, 2},
+            {CHIP_ESP32S3, 2},
+            {CHIP_ESP32C2, 1},
+            {CHIP_ESP32C3, 1},
+            {CHIP_ESP32H2, 0},
+    };
+
+    static inline const std::map<const esp_chip_model_t, std::map<uint32_t, spi_host_device_t>> smChipToMultibusSpiNum = {
+            {CHIP_ESP32, {{0, SPI2_HOST}, {1, SPI3_HOST}}},
+            {CHIP_ESP32S2, {{0, SPI2_HOST}, {1, SPI3_HOST}}},
+            {CHIP_ESP32S3, {{0, SPI2_HOST}, {1, SPI3_HOST}}},
+            {CHIP_ESP32C2, {{0, SPI2_HOST}}},
+            {CHIP_ESP32C2, {{0, SPI2_HOST}}},
+    };
 };
 
 #endif //MULTIBUS_MAIN_MULTIBUS_HARDWARE_INFO_INCLUDED

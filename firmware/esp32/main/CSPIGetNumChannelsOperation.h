@@ -20,34 +20,35 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MULTIBUS_MAIN_C_BRIDGE_GET_HW_INFO_OPERATION_INCLUDED
-#define MULTIBUS_MAIN_C_BRIDGE_GET_HW_INFO_OPERATION_INCLUDED
+#ifndef MULTIBUS_MAIN_SPI_GET_NUM_CHANNELS_OPERATION_INCLUDED
+#define MULTIBUS_MAIN_SPI_GET_NUM_CHANNELS_OPERATION_INCLUDED
 
 #include "IMultiBusOperation.h"
 #include "IMultiBusMessageReaderWriter.h"
-#include "CHardwareInfo.h"
+#include "driver/spi_master.h"
 #include <esp_log.h>
-#include <string>
-#include <multibus_protocol.h>
+#include "CHardwareInfo.h"
+#include "CSPIMaster.h"
 
-class CBridgeGetHWInfoOperation : public IMultiBusOperation {
- public:
-  explicit CBridgeGetHWInfoOperation(std::shared_ptr<IMultiBusMessageReaderWriter> aMultiBusReaderWriter)
-      : mMultiBusReaderWriter(std::move(aMultiBusReaderWriter)) {}
+class CPIGetNumChannelsOperation : public IMultiBusOperation {
 
-  ~CBridgeGetHWInfoOperation() override = default;
+public:
+    explicit CPIGetNumChannelsOperation(std::shared_ptr<IMultiBusMessageReaderWriter> aMultiBusReaderWriter)
+            : mMultiBusReaderWriter(std::move(aMultiBusReaderWriter)) {}
 
-  void execute(const SMultiBusMessage &aMessage) override {
-    ESP_LOGI("Bridge", "bridge_get_hw_info\n");
+    ~CPIGetNumChannelsOperation() override = default;
 
-    auto lLen = mb_bridge_hardware_info_response_setup(sSendBuffer.data(),
-                                                       sSendBuffer.size(), 0x0,
-                                                       CHardwareInfo::getChipModel().c_str());
-    mMultiBusReaderWriter->writeMultibusMessageBuffer({sSendBuffer.begin(), sSendBuffer.begin() + lLen});
-  }
+    void execute(const SMultiBusMessage &aMessage) override {
+        ESP_LOGI("SPI", "spi_get_num_channels\n");
 
- private:
-  std::shared_ptr<IMultiBusMessageReaderWriter> mMultiBusReaderWriter{};
+        auto lLen = mb_spi_master_get_num_channels_response_setup(
+                sSendBuffer.data(),sSendBuffer.size(), 0x0,
+                CHardwareInfo::getNumSpiPorts());
+        mMultiBusReaderWriter->writeMultibusMessageBuffer(
+                {sSendBuffer.begin(), sSendBuffer.begin() + lLen});
+    }
+
+    std::shared_ptr<IMultiBusMessageReaderWriter> mMultiBusReaderWriter{};
 };
 
-#endif // MULTIBUS_MAIN_C_BRIDGE_GET_HW_INFO_OPERATION_INCLUDED
+#endif // MULTIBUS_MAIN_SPI_GET_NUM_CHANNELS_OPERATION_INCLUDED

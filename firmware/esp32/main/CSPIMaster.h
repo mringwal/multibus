@@ -20,34 +20,16 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MULTIBUS_MAIN_C_BRIDGE_GET_HW_INFO_OPERATION_INCLUDED
-#define MULTIBUS_MAIN_C_BRIDGE_GET_HW_INFO_OPERATION_INCLUDED
+#ifndef MULTIBUS_MAIN_SPIMASTER_INCLUDED
+#define MULTIBUS_MAIN_SPIMASTER_INCLUDED
 
-#include "IMultiBusOperation.h"
-#include "IMultiBusMessageReaderWriter.h"
+#include "multibus_protocol.h"
+#include "CComponent.h"
 #include "CHardwareInfo.h"
-#include <esp_log.h>
-#include <string>
-#include <multibus_protocol.h>
 
-class CBridgeGetHWInfoOperation : public IMultiBusOperation {
- public:
-  explicit CBridgeGetHWInfoOperation(std::shared_ptr<IMultiBusMessageReaderWriter> aMultiBusReaderWriter)
-      : mMultiBusReaderWriter(std::move(aMultiBusReaderWriter)) {}
-
-  ~CBridgeGetHWInfoOperation() override = default;
-
-  void execute(const SMultiBusMessage &aMessage) override {
-    ESP_LOGI("Bridge", "bridge_get_hw_info\n");
-
-    auto lLen = mb_bridge_hardware_info_response_setup(sSendBuffer.data(),
-                                                       sSendBuffer.size(), 0x0,
-                                                       CHardwareInfo::getChipModel().c_str());
-    mMultiBusReaderWriter->writeMultibusMessageBuffer({sSendBuffer.begin(), sSendBuffer.begin() + lLen});
-  }
-
- private:
-  std::shared_ptr<IMultiBusMessageReaderWriter> mMultiBusReaderWriter{};
+class CSPIMaster : public CComponent<mb_operation_spi_master_t> {
+public:
+    CSPIMaster();
 };
 
-#endif // MULTIBUS_MAIN_C_BRIDGE_GET_HW_INFO_OPERATION_INCLUDED
+#endif //MULTIBUS_MAIN_SPIMASTER_INCLUDED

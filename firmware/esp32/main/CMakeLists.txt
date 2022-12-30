@@ -7,6 +7,7 @@ idf_component_register(SRCS
         "CMultiBusOperation.cpp"
         "CBridge.cpp"
         "CI2CMaster.cpp"
+        "CSPIMaster.cpp"
         "CComponentFactory.cpp"
         "CHardwareInfo.cpp"
         ${CMAKE_BINARY_DIR}/multibus_protocol.c

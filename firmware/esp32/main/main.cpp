@@ -20,6 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <esp_log.h>
 #include "CUartSerial.h"
 #include "CSerialMultiBusMessageReaderWriter.h"
 #include "CMultiBusOperationExecutor.h"
@@ -43,6 +44,10 @@ void app_main(void) {
     /* I2C MASTER */
     auto lI2CMaster = CComponentFactory::createI2CMasterComponent(lMessageReaderWriter);
     lOperationExecutor->registerComponent(MB_COMPONENT_I2C_MASTER, lI2CMaster);
+
+    /* SPI MASTER */
+    auto lSPIMaster = CComponentFactory::createSPIMasterComponent(lMessageReaderWriter);
+    lOperationExecutor->registerComponent(MB_COMPONENT_SPI_MASTER, lSPIMaster);
 
     while (true) {
         auto lMessage = lMessageReaderWriter->readMultiBusMessage();

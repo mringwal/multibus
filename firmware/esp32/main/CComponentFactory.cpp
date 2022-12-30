@@ -21,6 +21,9 @@
  */
 
 #include "CComponentFactory.h"
+#include <CBridge.h>
+#include <CI2CMaster.h>
+#include "CSPIMaster.h"
 #include "CBridgeGetProtocolVersionOperation.h"
 #include "CBridgeGetFirmwareVersionOperation.h"
 #include "CBridgeGetHWInfoOperation.h"
@@ -29,6 +32,7 @@
 #include "CI2CReadOperation.h"
 #include "CI2CWriteOperation.h"
 #include "CI2CConfigOperation.h"
+#include "CSPIGetNumChannelsOperation.h"
 
 std::shared_ptr<IComponent>
 CComponentFactory::createBridgeComponent(std::shared_ptr<IMultiBusMessageReaderWriter> aMultiBusReaderWriter) {
@@ -38,8 +42,7 @@ CComponentFactory::createBridgeComponent(std::shared_ptr<IMultiBusMessageReaderW
       aMultiBusReaderWriter);
   auto lBridgeGetFirmwareVersionOperation = std::make_shared<CBridgeGetFirmwareVersionOperation>(
       aMultiBusReaderWriter);
-  auto lHwInfo = std::make_shared<CHardwareInfo>();
-  auto lBridgeGetHWInfoOperation = std::make_shared<CBridgeGetHWInfoOperation>(aMultiBusReaderWriter, lHwInfo);
+  auto lBridgeGetHWInfoOperation = std::make_shared<CBridgeGetHWInfoOperation>(aMultiBusReaderWriter);
   auto lBridgeGetSupportedComponentsOperation = std::make_shared<CBridgeGetSupportedComponentsOperation>(
       aMultiBusReaderWriter);
   auto lBridgeDelayRequestOperation = std::make_shared<CBridgeDelayRequestOperation>(aMultiBusReaderWriter);
@@ -70,3 +73,15 @@ CComponentFactory::createI2CMasterComponent(std::shared_ptr<IMultiBusMessageRead
   return lI2cMaster;
 }
 
+std::shared_ptr<IComponent>
+CComponentFactory::createSPIMasterComponent(std::shared_ptr<IMultiBusMessageReaderWriter> aMultiBusReaderWriter) {
+    // todo configued ports??
+    auto lSpiMaster = std::make_shared<CSPIMaster>();
+
+    // spi operations
+    auto lSpiGetNumChannelsOperation = std::make_shared<CPIGetNumChannelsOperation>(aMultiBusReaderWriter);
+
+    lSpiMaster->registerOperation(MB_OPERATION_SPI_MASTER_GET_NUM_CHANNELS_REQUEST, lSpiGetNumChannelsOperation);
+
+    return lSpiMaster;
+}

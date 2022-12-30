@@ -38,8 +38,10 @@ class CBridgeGetSupportedComponentsOperation : public IMultiBusOperation {
   void execute(const SMultiBusMessage& aMessage) override {
     ESP_LOGI("Bridge", "bridge_get_supported_components\n");
 
-    const std::array<uint8_t, 1> lSupportedComponents{MB_COMPONENT_I2C_MASTER};
-    auto lLen = mb_bridge_supported_components_response_setup(sSendBuffer.data(), sSendBuffer.size(), 0x0, 0x1, lSupportedComponents.data());
+    const std::array<uint8_t, 2> lSupportedComponents{MB_COMPONENT_I2C_MASTER, MB_COMPONENT_SPI_MASTER};
+    auto lLen = mb_bridge_supported_components_response_setup(
+            sSendBuffer.data(), sSendBuffer.size(),
+            0x0, 0x2, lSupportedComponents.data());
     mMultiBusReaderWriter->writeMultibusMessageBuffer({sSendBuffer.begin(), sSendBuffer.begin() + lLen});
   }
 
