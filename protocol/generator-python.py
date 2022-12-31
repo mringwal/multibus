@@ -91,21 +91,21 @@ def create_request_message_functions(component, component_name, operation, opera
     # arguments for message setup functions. 'channel' is always there.
     arguments = [('channel', 'u8')]
     for (field, mb_type) in operation_fields.items():
-        # TODO handle enums ??
         if type(mb_type) is dict:
-            continue
-        if mb_type == "u8[]":
+            arguments.append((field, 'u8'))  # simply use an u8 for enum - should be enough
+        elif mb_type == "u8[]":
             arguments.append((field + "_len", 'u16'))
-        arguments.append((field, mb_type))
+            arguments.append((field, mb_type))
+        else:
+            arguments.append((field, mb_type))
 
     body = ""
     variable_field_len = None
     pack_string = '>'
     for (field, mb_type) in operation_fields.items():
-        # TODO handle enum, assume size = 1
         if type(mb_type) is dict:
-            body += "# -> Enum types not implemented yet\n"
-            pack_string += 'B'  # dummy
+            # simply use an u8 for enum - should be enough
+            pack_string += 'B'
             offset += 1
             continue
         if mb_type == 'u8':
@@ -126,9 +126,8 @@ def create_request_message_functions(component, component_name, operation, opera
         else:
             body += '    # type %s not handled yet\n' % mb_type
 
-    replace_enum_with_dummy = [str(0) if type(v) is dict else k for k, v in operation_fields.items()]
     body += "    payload = struct.pack('" + pack_string + "', " + ', '.join(
-        replace_enum_with_dummy) + ")\n"
+        operation_fields.keys()) + ")\n"
     out.write("def " + setup_fn_name + "(" + py_arguments(arguments) + "):\n")
     if variable_field_len is None:
         out.write('    payload_len = {offset}\n'.format(offset=offset - payload_offset))
