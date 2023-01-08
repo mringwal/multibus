@@ -40,6 +40,9 @@ def main(serial_port):
 
     print("Num SPI channels: %d on chip: %s" % (spi.get_number_of_spi_channels(), bridge.get_hw_info()))
 
+    spi.configure_port(1, 0, 0, 0, 0, 1000000)
+    spi.configure_port(1, 0, 0, 0, 0, 1000000)
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
