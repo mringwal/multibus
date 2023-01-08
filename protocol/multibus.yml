@@ -146,9 +146,18 @@ message:
       id: 0x03
 
       operations:
-        config_request:
-          id: 0x00
 
+        get_num_channels_request:
+          id: 0x00
+          fields:
+
+        get_num_channels_response:
+          id: 0x80
+          fields:
+            num_channels: u8
+
+        config_request:
+          id: 0x01
           # see https://en.wikipedia.org/wiki/Serial_Peripheral_Interface
           fields:
             data_bits: u8
@@ -167,51 +176,42 @@ message:
             baud_rate: u32
 
         config_response:
-          id: 0x80
+          id: 0x81
           fields:
             status: enum
 
         # Send data over MOSI, ignore data on MISO
         write_request:
-          id: 0x01
+          id: 0x02
           fields:
             data: u8[]
 
         write_response:
-          id: 0x81
+          id: 0x82
           fields:
             status: enum
 
         # Receive data over MISO, send zeroes over MOSI
         read_request:
-          id: 0x02
+          id: 0x03
           fields:
             num_bytes: u16
 
         read_response:
-          id: 0x82
+          id: 0x83
           fields:
             status: enum
             data: u8[]
 
         # Send data over MOSI, receive data over MISO
         transfer_request:
-          id: 0x03
+          id: 0x04
           fields:
             data: u8[]
 
         transfer_response:
-          id: 0x83
+          id: 0x84
           fields:
             status: enum
             data: u8[]
-
-        get_num_channels_request:
-          id: 0x04
-          fields:
-
-        get_num_channels_response:
-          id: 0x04
-          fields:
-            num_channels: u16
 
