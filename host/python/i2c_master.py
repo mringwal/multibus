@@ -44,7 +44,8 @@ class I2CMaster:
         self.multibus_connection = multibus_connection
         self.i2c_channel = i2c_channel
 
-        message = multibus_protocol.mb_i2c_master_config_request_setup(self.i2c_channel, 0x1, 0x1)
+        message = multibus_protocol.mb_i2c_master_config_request_setup(
+            self.i2c_channel, multibus_protocol.MB_I2C_MASTER_CONFIG_REQUEST_CLOCK_SPEED_100_KHZ, 0x1, 0x1)
 
         self.multibus_connection.send_multibus_message(message)
 
