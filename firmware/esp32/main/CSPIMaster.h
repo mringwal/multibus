@@ -23,13 +23,22 @@
 #ifndef MULTIBUS_MAIN_SPIMASTER_INCLUDED
 #define MULTIBUS_MAIN_SPIMASTER_INCLUDED
 
+#include <driver/spi_master.h>
 #include "multibus_protocol.h"
 #include "CComponent.h"
 #include "CHardwareInfo.h"
+#include <map>
 
 class CSPIMaster : public CComponent<mb_operation_spi_master_t> {
 public:
     CSPIMaster();
+
+    void configureHost(spi_host_device_t aSpiHost, spi_device_handle_t aDeviceHandle);
+    void removeConfiguredHost(spi_host_device_t);
+    spi_device_handle_t getDeviceHandleForHost(spi_host_device_t);
+
+private:
+    std::map<spi_host_device_t, spi_device_handle_t> mConfiguredSpiHosts;
 };
 
 #endif //MULTIBUS_MAIN_SPIMASTER_INCLUDED

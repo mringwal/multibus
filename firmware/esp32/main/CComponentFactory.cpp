@@ -33,6 +33,7 @@
 #include "CI2CWriteOperation.h"
 #include "CI2CConfigOperation.h"
 #include "CSPIGetNumChannelsOperation.h"
+#include "CSPIConfigOperation.h"
 
 std::shared_ptr<IComponent>
 CComponentFactory::createBridgeComponent(std::shared_ptr<IMultiBusMessageReaderWriter> aMultiBusReaderWriter) {
@@ -80,8 +81,10 @@ CComponentFactory::createSPIMasterComponent(std::shared_ptr<IMultiBusMessageRead
 
     // spi operations
     auto lSpiGetNumChannelsOperation = std::make_shared<CPIGetNumChannelsOperation>(aMultiBusReaderWriter);
+    auto lSpiConfigOperation = std::make_shared<CSPIConfigOperation>(lSpiMaster, aMultiBusReaderWriter);
 
     lSpiMaster->registerOperation(MB_OPERATION_SPI_MASTER_GET_NUM_CHANNELS_REQUEST, lSpiGetNumChannelsOperation);
+    lSpiMaster->registerOperation(MB_OPERATION_SPI_MASTER_CONFIG_REQUEST, lSpiConfigOperation);
 
     return lSpiMaster;
 }
