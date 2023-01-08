@@ -26,3 +26,19 @@
 CSPIMaster::CSPIMaster() {
     ESP_LOGI("SPIMaster", "Available SPI ports: %lu", CHardwareInfo::getNumSpiPorts());
 }
+
+void CSPIMaster::configureHost(spi_host_device_t aSpiHost, spi_device_handle_t aDeviceHandle) {
+  mConfiguredSpiHosts[aSpiHost] = aDeviceHandle;
+}
+
+void CSPIMaster::removeConfiguredHost(spi_host_device_t aSpiHost) {
+  mConfiguredSpiHosts.erase(aSpiHost);
+}
+
+spi_device_handle_t CSPIMaster::getDeviceHandleForHost(spi_host_device_t aSpiHost) {
+  const auto lDevice = mConfiguredSpiHosts.find(aSpiHost);
+  if (lDevice == mConfiguredSpiHosts.end()) {
+    return nullptr;
+  }
+  return lDevice->second;
+}
