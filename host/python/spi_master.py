@@ -46,3 +46,15 @@ class SPIMaster:
         self.multibus_connection.send_multibus_message(message)
         payload = self.multibus_connection.receive_multibus_message()[1]
         return multibus_protocol.mb_spi_master_get_num_channels_response(payload)
+
+    def configure_port(self, spi_channel, data_bits, bit_order, cpol, cpha, baud_rate):
+        message = multibus_protocol.mb_spi_master_config_request_setup(
+            spi_channel, data_bits, bit_order, cpol, cpha, baud_rate)
+
+        self.multibus_connection.send_multibus_message(message)
+
+        payload = self.multibus_connection.receive_multibus_message()[1]
+        status = multibus_protocol.mb_i2c_master_config_response(payload)
+        if status != multibus_protocol.MB_STATUS_OK:
+            raise Exception("TODO: error during spi config")
+
