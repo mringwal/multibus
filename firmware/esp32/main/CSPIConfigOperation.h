@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2022 Boris Zweimüller
+ * Copyright 2023 Boris Zweimüller
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
@@ -75,7 +75,13 @@ class CSPIConfigOperation : public IMultiBusOperation {
         .sclk_io_num = SPI_MASTER_CLK_IO,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
+        .data4_io_num = -1,
+        .data5_io_num = -1,
+        .data6_io_num = -1,
+        .data7_io_num = -1,
         .max_transfer_sz = SPI_MASTER_MAX_TRANSFER_SIZE,
+        .flags = 0,
+        .intr_flags = 0
     };
 
     if (auto lRet = spi_bus_initialize(lSpiHost, &lBusCfg, SPI_DMA_CH_AUTO) != ESP_OK) {
@@ -89,8 +95,15 @@ class CSPIConfigOperation : public IMultiBusOperation {
     ESP_LOGI("SPI-MASTER", "SPI Master: %d configured successfully.", lSpiHost);
 
     spi_device_interface_config_t lDeviceConfig = {
-        .mode = 0, // SPI mode 0 // TODO
+        .command_bits = 0,
+        .address_bits = 0,
+        .dummy_bits = 0,
+        .mode = 0, // SPI mode 0 // TODO with cpol and cpha from config
+        .duty_cycle_pos = 0,
+        .cs_ena_pretrans = 0,
+        .cs_ena_posttrans = 0,
         .clock_speed_hz = (int)mb_spi_master_config_request_get_baud_rate(aMessage.mPayload.data()),
+        .input_delay_ns = 0,
         .spics_io_num = SPI_MASTER_CS_IO, // TODO support different CS per host
         .flags = SPI_DEVICE_HALFDUPLEX,
         .queue_size = 1,
