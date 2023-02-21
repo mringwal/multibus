@@ -58,3 +58,13 @@ class SPIMaster:
         if status != multibus_protocol.MB_STATUS_OK:
             raise Exception("TODO: error during spi config")
 
+    def write(self, spi_channel: int, bytes_to_write: bytes):
+        message = multibus_protocol.mb_spi_master_write_request_setup(
+            spi_channel, len(bytes_to_write), bytes_to_write)
+
+        self.multibus_connection.send_multibus_message(message)
+
+        payload = self.multibus_connection.receive_multibus_message()[1]
+        status = multibus_protocol.mb_i2c_master_config_response(payload)
+        if status != multibus_protocol.MB_STATUS_OK:
+            raise Exception("TODO: error during spi write")

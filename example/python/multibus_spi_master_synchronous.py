@@ -20,9 +20,8 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from time import sleep
 import sys
-
+import time
 
 sys.path.insert(1, '../../../multibus/host/python')
 import serial_connection
@@ -31,6 +30,29 @@ import spi_master
 
 
 BAUDRATE = 115200
+
+NUM_MODULES = 4
+
+DECODE_MODE_REG = 0x09
+BRIGHTNESS_REG = 0x0A
+SCAN_LIMIT_REG = 0x0B
+SHUTDOWN_REG = 0x0C
+DISPLAY_TEST_REG = 0x0F
+
+def write_reg(spi: spi_master.SPIMaster, reg: int, value: int):
+    data = bytearray([reg, value])
+    data = data * NUM_MODULES
+    spi.write(1, data)
+
+
+def clear_display(spi):
+    for i in range(1,9):
+        write_reg(spi, i, 0x00)
+
+
+def set_col(spi, col_index):
+    for i in range(1, 9):
+        write_reg(spi, i, 0x01 << col_index);
 
 
 def main(serial_port):
@@ -41,7 +63,23 @@ def main(serial_port):
     print("Num SPI channels: %d on chip: %s" % (spi.get_number_of_spi_channels(), bridge.get_hw_info()))
 
     spi.configure_port(1, 0, 0, 0, 0, 1000000)
-    spi.configure_port(1, 0, 0, 0, 0, 1000000)
+
+    st = time.time()
+    write_reg(spi, SHUTDOWN_REG, 0x0)
+    elapsed = time.time() - st
+    print(elapsed)
+    write_reg(spi, DISPLAY_TEST_REG, 0x0)
+    write_reg(spi, SCAN_LIMIT_REG, 0x7)
+    write_reg(spi, DECODE_MODE_REG, 0x0)
+    write_reg(spi, SHUTDOWN_REG, 0x1)
+    write_reg(spi, BRIGHTNESS_REG, 0x2 & 0x0f)
+    st = time.time()
+    clear_display(spi)
+    elapsed = time.time() - st
+    print(elapsed)
+    # set_col(spi, 5)
+
+
 
 
 if __name__ == "__main__":

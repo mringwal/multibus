@@ -34,6 +34,7 @@
 #include "CI2CConfigOperation.h"
 #include "CSPIGetNumChannelsOperation.h"
 #include "CSPIConfigOperation.h"
+#include "CSPIMasterWriteOperation.h"
 
 std::shared_ptr<IComponent>
 CComponentFactory::createBridgeComponent(std::shared_ptr<IMultiBusMessageReaderWriter> aMultiBusReaderWriter) {
@@ -76,15 +77,16 @@ CComponentFactory::createI2CMasterComponent(std::shared_ptr<IMultiBusMessageRead
 
 std::shared_ptr<IComponent>
 CComponentFactory::createSPIMasterComponent(std::shared_ptr<IMultiBusMessageReaderWriter> aMultiBusReaderWriter) {
-    // todo configued ports??
-    auto lSpiMaster = std::make_shared<CSPIMaster>();
+  // todo configued ports??
+  auto lSpiMaster = std::make_shared<CSPIMaster>();
 
-    // spi operations
-    auto lSpiGetNumChannelsOperation = std::make_shared<CPIGetNumChannelsOperation>(aMultiBusReaderWriter);
-    auto lSpiConfigOperation = std::make_shared<CSPIConfigOperation>(lSpiMaster, aMultiBusReaderWriter);
+  // spi operations
+  auto lSpiGetNumChannelsOperation = std::make_shared<CPIGetNumChannelsOperation>(aMultiBusReaderWriter);
+  auto lSpiConfigOperation = std::make_shared<CSPIConfigOperation>(lSpiMaster, aMultiBusReaderWriter);
+  auto lSpiWriteOperation = std::make_shared<CSPIMasterWriteOperation>(lSpiMaster, aMultiBusReaderWriter);
 
-    lSpiMaster->registerOperation(MB_OPERATION_SPI_MASTER_GET_NUM_CHANNELS_REQUEST, lSpiGetNumChannelsOperation);
-    lSpiMaster->registerOperation(MB_OPERATION_SPI_MASTER_CONFIG_REQUEST, lSpiConfigOperation);
-
-    return lSpiMaster;
+  lSpiMaster->registerOperation(MB_OPERATION_SPI_MASTER_GET_NUM_CHANNELS_REQUEST, lSpiGetNumChannelsOperation);
+  lSpiMaster->registerOperation(MB_OPERATION_SPI_MASTER_CONFIG_REQUEST, lSpiConfigOperation);
+  lSpiMaster->registerOperation(MB_OPERATION_SPI_MASTER_WRITE_REQUEST, lSpiWriteOperation);
+  return lSpiMaster;
 }
