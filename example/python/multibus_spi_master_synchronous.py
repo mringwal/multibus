@@ -64,25 +64,21 @@ def main(serial_port):
 
     spi.configure_port(1, 0, 0, 0, 0, 1000000)
 
-    st = time.time()
     write_reg(spi, SHUTDOWN_REG, 0x0)
-    elapsed = time.time() - st
-    print(elapsed)
     write_reg(spi, DISPLAY_TEST_REG, 0x0)
     write_reg(spi, SCAN_LIMIT_REG, 0x7)
     write_reg(spi, DECODE_MODE_REG, 0x0)
     write_reg(spi, SHUTDOWN_REG, 0x1)
     write_reg(spi, BRIGHTNESS_REG, 0x2 & 0x0f)
-    st = time.time()
     clear_display(spi)
-    elapsed = time.time() - st
-    print(elapsed)
-    # set_col(spi, 5)
-
-
+    
+    for j in range(0, 10):
+        for i in range(0, 8):
+            set_col(spi, i)
+            bridge.delay_request(20)
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        sys.exit("Usage: python3 multibus_i2c_master_synchronous.py <path to serial port>")
+        sys.exit("Usage: python3 multibus_spi_master_synchronous.py <path to serial port>")
     main(sys.argv[1])
