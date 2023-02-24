@@ -56,11 +56,11 @@ uint8_t CUartSerial::readByte() {
 }
 
 void CUartSerial::writeBytes(const std::span<uint8_t>& aData) {
-  printf("data to send: %d\n", aData.size());
-  for (auto &b: aData) {
-    printf("0x%X ", b);
-  }
-  printf("\n");
+//  printf("data to send: %d\n", aData.size());
+//  for (auto &b: aData) {
+//    printf("0x%X ", b);
+//  }
+//  printf("\n");
 
   uart_write_bytes(mUartNum, aData.data(), aData.size());
 }

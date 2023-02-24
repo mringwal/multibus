@@ -51,9 +51,9 @@ void app_main(void) {
 
     while (true) {
         auto lMessage = lMessageReaderWriter->readMultiBusMessage();
-        ESP_LOGI("Bridge", "---------------------------------------------------");
-        ESP_LOGI("Bridge", "Received:");
-        lMessage.print();
+        ESP_LOGD("Bridge", "---------------------------------------------------");
+        ESP_LOGD("Bridge", "Received:");
+//        lMessage.print();
         lOperationExecutor->execute(lMessage);
     }
 }

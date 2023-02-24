@@ -38,7 +38,7 @@ class CSPIMasterWriteOperation : public IMultiBusOperation {
   ~CSPIMasterWriteOperation() override = default;
   
   void execute(const SMultiBusMessage& aMessage) override {
-    ESP_LOGI("SPI-MASTER", "spi_master_write\n");
+    ESP_LOGD("SPI-MASTER", "spi_master_write\n");
 
     spi_host_device_t lSpiHost = CHardwareInfo::getSpiHostDeviceForMultibusChannelNumber(aMessage.mChannel);
     if (lSpiHost == SPI_HOST_MAX) {
@@ -73,7 +73,7 @@ class CSPIMasterWriteOperation : public IMultiBusOperation {
       mMultiBusReaderWriter->writeMultibusMessageBuffer({sSendBuffer.begin(), sSendBuffer.begin() + lLen});
     }
 
-    ESP_LOGI("SPI-MASTER", "SPI Write ok");
+    ESP_LOGD("SPI-MASTER", "SPI Write ok");
     auto lLen = mb_spi_master_config_response_setup(
         sSendBuffer.data(), sSendBuffer.size(), aMessage.mChannel, MB_STATUS_OK);
     mMultiBusReaderWriter->writeMultibusMessageBuffer({sSendBuffer.begin(), sSendBuffer.begin() + lLen});
