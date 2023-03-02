@@ -75,10 +75,10 @@ An example for reading a light sensor over I2C is provided as `example/multibus_
 
 ### Status
 
-| Platform/Bus                           | I2C Master   | GPIO | SPI | ... |
-|----------------------------------------|--------------|------|-----|-----|
-| [ESP32](firmware/esp32)                | ok           |      |     |     |
-| [Raspberry Pi Pico (W)](firmware/pico) | ok           |      |     |     |
+| Platform/Bus                           | I2C Master   | SPI Master | GPIO | ... |
+|----------------------------------------|--------------|------------|------|-----|
+| [ESP32](firmware/esp32)                | ok           | ok         |      |     |
+| [Raspberry Pi Pico (W)](firmware/pico) | ok           | ok         |      |     |
 
 
 ## Contributions
