@@ -31,10 +31,11 @@ message:
 
   enums:
     status :
-      OK                : 0x00
-      UNKNOWN_ERROR     : 0x01
-      INVALID_ARGUMENTS : 0x02
-      BUSY              : 0x03
+      OK:                  0x00
+      UNKNOWN_ERROR:       0x01
+      INVALID_ARGUMENTS:   0x02
+      BUSY:                0x03
+      GPIO_ALREADY_IN_USE: 0x04
 
   components:
 
@@ -181,9 +182,11 @@ message:
             status: enum
 
         # Send data over MOSI, ignore data on MISO
+        # chip_select_gpio indicates the GPIO to use for Chip Select, use 0xff for NONE
         write_request:
           id: 0x02
           fields:
+            chip_select_gpio: u8
             data: u8[]
 
         write_response:
@@ -192,9 +195,11 @@ message:
             status: enum
 
         # Receive data over MISO, send zeroes over MOSI
+        # chip_select_gpio indicates the GPIO to use for Chip Select, use 0xff for NONE
         read_request:
           id: 0x03
           fields:
+            chip_select_gpio: u8
             num_bytes: u16
 
         read_response:
@@ -204,9 +209,11 @@ message:
             data: u8[]
 
         # Send data over MOSI, receive data over MISO
+        # chip_select_gpio indicates the GPIO to use for Chip Select, use 0xff for NONE
         transfer_request:
           id: 0x04
           fields:
+            chip_select_gpio: u8
             data: u8[]
 
         transfer_response:
