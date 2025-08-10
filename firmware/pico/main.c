@@ -257,7 +257,7 @@ static inline void mb_spi_master_cs_deselect() {
 }
 #endif
 
-static void mb_spi_master_set_gpio_function(enum gpio_function function) {
+static void mb_spi_master_set_gpio_function(int function) {
     gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, function);
     gpio_set_function(PICO_DEFAULT_SPI_TX_PIN, function);
     gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, function);
@@ -344,7 +344,7 @@ static bool mb_component_spi_master_handle_request(const uint8_t * payload_data,
             mb_spi_master_cs_deselect();
             cdc_response_len = mb_spi_master_read_response_setup(cdc_response, sizeof(cdc_response), 0, status, spi_operation_len, spi_master_read_buffer);
             break;
-        case MB_OPERATION_I2C_MASTER_WRITE_REQUEST:
+        case MB_OPERATION_SPI_MASTER_WRITE_REQUEST:
             spi_operation_len = mb_spi_master_write_request_get_data_len(payload_len);
             mb_spi_master_cs_select();
             (void) spi_write_blocking(spi_default, mb_spi_master_write_request_get_data(payload_data), spi_operation_len);
