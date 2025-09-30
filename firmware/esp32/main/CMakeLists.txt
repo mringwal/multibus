@@ -13,9 +13,6 @@ idf_component_register(SRCS
         ${CMAKE_BINARY_DIR}/multibus_protocol.c
         INCLUDE_DIRS "." ${CMAKE_BINARY_DIR})
 
-# find python
-find_package (Python REQUIRED COMPONENTS Interpreter)
-
 # rule to generate multibus_protocol helper
 add_custom_command(
         OUTPUT ${CMAKE_BINARY_DIR}/multibus_protocol.h ${CMAKE_BINARY_DIR}/multibus_protocol.c ${CMAKE_BINARY_DIR}/multibus_transport_protocol.h
