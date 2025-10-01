@@ -46,7 +46,7 @@ class CI2ConfigOperation : public IMultiBusOperation {
     esp_err_t lRet = ESP_OK;
     if (isPortConfigured(aMessage.mChannel)) {
       ESP_LOGI("I2C", "Reset I2C driver for channel: %d", aMessage.mChannel);
-      lRet = i2c_driver_delete(aMessage.mChannel);
+      lRet = i2c_driver_delete(static_cast<i2c_port_t>(aMessage.mChannel));
     }
 
     if (lRet == ESP_OK) {
@@ -63,11 +63,11 @@ class CI2ConfigOperation : public IMultiBusOperation {
           .clk_flags = 0,
       };
 
-      lRet = i2c_param_config(aMessage.mChannel, &conf);
+      lRet = i2c_param_config(static_cast<i2c_port_t>(aMessage.mChannel), &conf);
 
       if (lRet == ESP_OK) {
         // no rx and tx buffers needed for master mode
-        lRet = i2c_driver_install(aMessage.mChannel, conf.mode, 0, 0, 0);
+        lRet = i2c_driver_install(static_cast<i2c_port_t>(aMessage.mChannel), conf.mode, 0, 0, 0);
       }
     }
 

@@ -23,18 +23,19 @@
 #ifndef MULTIBUS_MAIN_UART_SERIAL_INCLUDED
 #define MULTIBUS_MAIN_UART_SERIAL_INCLUDED
 
+#include <hal/uart_types.h>
 #include "ISerial.h"
 
 class CUartSerial : public ISerial {
  public:
-  CUartSerial(int aUartNum, uint32_t aRxPin, uint32_t aTxPin, int aBaudRate, uint32_t aRxBufferSize);
+  CUartSerial(uart_port_t aUartPort, uint32_t aRxPin, uint32_t aTxPin, int aBaudRate, uint32_t aRxBufferSize);
   ~CUartSerial() override = default;
 
   uint8_t readByte() override;
   void writeBytes(const std::span<uint8_t>& aData) override;
 
  private:
-  int mUartNum;
+    uart_port_t mUartPort;
 };
 
 #endif //MULTIBUS_MAIN_UART_SERIAL_INCLUDED

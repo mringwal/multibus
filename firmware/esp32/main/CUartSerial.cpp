@@ -24,8 +24,8 @@
 #include "CUartSerial.h"
 #include "driver/uart.h"
 
-CUartSerial::CUartSerial(int aUartNum, uint32_t aRxPin, uint32_t aTxPin,
-                         int aBaudRate, uint32_t aRxBufferSize) : mUartNum(aUartNum) {
+CUartSerial::CUartSerial(uart_port_t aUartPort, uint32_t aRxPin, uint32_t aTxPin,
+                         int aBaudRate, uint32_t aRxBufferSize) : mUartPort(aUartPort) {
 
   uart_config_t uart_config = {
       .baud_rate = aBaudRate,
@@ -38,9 +38,9 @@ CUartSerial::CUartSerial(int aUartNum, uint32_t aRxPin, uint32_t aTxPin,
   };
   int intr_alloc_flags = 0;
 
-  ESP_ERROR_CHECK(uart_driver_install(aUartNum, aRxBufferSize * 2, 0, 0, nullptr, intr_alloc_flags));
-  ESP_ERROR_CHECK(uart_param_config(aUartNum, &uart_config));
-  ESP_ERROR_CHECK(uart_set_pin(aUartNum, aTxPin, aRxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+  ESP_ERROR_CHECK(uart_driver_install(aUartPort, aRxBufferSize * 2, 0, 0, nullptr, intr_alloc_flags));
+  ESP_ERROR_CHECK(uart_param_config(aUartPort, &uart_config));
+  ESP_ERROR_CHECK(uart_set_pin(aUartPort, aTxPin, aRxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
 
   ESP_LOGI("UART", "Initialized UART for MultiBus communication successfully.");
 }
@@ -49,7 +49,7 @@ uint8_t CUartSerial::readByte() {
   uint8_t data[1];
   int len = 0;
   while (len <= 0) {
-    len = uart_read_bytes(mUartNum, data, 1, 20 / portTICK_PERIOD_MS);
+    len = uart_read_bytes(mUartPort, data, 1, 20 / portTICK_PERIOD_MS);
   }
 //  printf("READ 0x%X\n", data[0]);
   return data[0];
@@ -62,5 +62,5 @@ void CUartSerial::writeBytes(const std::span<uint8_t>& aData) {
 //  }
 //  printf("\n");
 
-  uart_write_bytes(mUartNum, aData.data(), aData.size());
+  uart_write_bytes(mUartPort, aData.data(), aData.size());
 }

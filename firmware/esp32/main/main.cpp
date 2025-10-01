@@ -21,12 +21,12 @@
  */
 
 #include <esp_log.h>
-#include "CUartSerial.h"
 #include "CSerialMultiBusMessageReaderWriter.h"
 #include "CMultiBusOperationExecutor.h"
 #include "CComponentFactory.h"
+#include "CUartSerial.h"
 
-#define MULTIBUS_UART_NUM 1
+#define MULTIBUS_UART_NUM UART_NUM_1
 
 extern "C" {
 void app_main(void);

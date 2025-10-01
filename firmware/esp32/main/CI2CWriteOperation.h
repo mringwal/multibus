@@ -34,7 +34,7 @@ class CI2CWriteOperation : public IMultiBusOperation {
   : mMultiBusReaderWriter(std::move(aMultiBusReaderWriter)) {}
 
   ~CI2CWriteOperation() override = default;
-  
+
   void execute(const SMultiBusMessage& aMessage) override {
     ESP_LOGI("I2C", "i2c_master_write\n");
 
@@ -56,7 +56,8 @@ class CI2CWriteOperation : public IMultiBusOperation {
     }
 
     i2c_master_stop(cmd);
-    esp_err_t lRet = i2c_master_cmd_begin(aMessage.mChannel, cmd, 1000 / portTICK_PERIOD_MS);
+    esp_err_t lRet = i2c_master_cmd_begin(static_cast<i2c_port_t>(aMessage.mChannel)
+            , cmd, 1000 / portTICK_PERIOD_MS);
     ESP_LOGI("I2C", "I2C Write Result: 0x%X\n", lRet);
     i2c_cmd_link_delete(cmd);
 
